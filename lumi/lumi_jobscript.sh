@@ -1,18 +1,18 @@
 #!/bin/bash
 #SBATCH --output=/users/%u/%x_%j.out
 #SBATCH --error=/users/%u/%x_%j.err
-#SBATCH --nodes=1
+#SBATCH --nodes=4
 #SBATCH --ntasks-per-node=8
 #SBATCH --account=project_465001383
-#SBATCH --partition=standard-g
+#SBATCH --partition=dev-g
 #SBATCH --gpus-per-node=8
-#SBATCH --time=24:00:00
-#SBATCH --job-name=aifs
+#SBATCH --time=00:30:00
+#SBATCH --job-name=breeze_lightning_epsilon
 #SBATCH --exclusive
 
 
 #Change this
-CONFIG_NAME=CONFIGNAME.yaml #This file should be located in run-anemoi/lumi
+CONFIG_NAME=lightning_config.yaml #This file should be located in run-anemoi/lumi
 
 #Should not have to change these
 PROJECT_DIR=/scratch/$SLURM_JOB_ACCOUNT

@@ -1,0 +1,225 @@
+# Config for lightning files.
+
+defaults:
+- data: zip
+- dataloader: zip 
+- diagnostics: evaluation
+- hardware: slurm
+- graph: netatmo
+- model: fuser
+- training: zip
+- override hydra/hydra_logging: disabled  
+- override hydra/job_logging: disabled 
+- _self_
+- override diagnostics/plot: none
+
+hydra:  
+  output_subdir: null  
+  run:  
+    dir: .
+
+
+
+data:
+  zip:
+    # KEEP THIS:
+  - forcing:
+    - "cos_latitude"
+    - "cos_longitude"
+    - "sin_latitude"
+    - "sin_longitude"
+    - "cos_julian_day"
+    - "cos_local_time"
+    - "sin_julian_day"
+    - "sin_local_time"
+    - "insolation"
+    - "lsm"
+    - "z"
+  
+    diagnostic:
+    - tp
+  
+    remapped:
+  
+    normalizer:
+      default: "mean-std"
+      std:
+      - "tp"
+  
+      min-max:
+      max:
+      - "z"
+      none:
+      - "cos_latitude"
+      - "cos_longitude"
+      - "sin_latitude"
+      - "sin_longitude"
+      - "cos_julian_day"
+      - "cos_local_time"
+      - "sin_julian_day"
+      - "sin_local_time"
+      - "insolation"
+      - "lsm"
+  
+    imputer:
+      default: "none"
+    remapper:
+      default: "none"
+  
+    processors:
+      normalizer:
+        _target_: anemoi.models.preprocessing.normalizer.InputNormalizer
+        _convert_: all
+        config: ${data.zip.0.normalizer}
+  - forcing:
+    - "cos_latitude"
+    - "cos_longitude"
+    - "sin_latitude"
+    - "sin_longitude"
+    - "insolation"
+    - "z"
+  
+    diagnostic:
+    - te
+  
+    remapped:
+  
+    normalizer:
+      default: "mean-std"
+      std:
+      min-max:
+        - "te"
+      max:
+      - "z"
+      none:
+      - "cos_latitude"
+      - "cos_longitude"
+      - "sin_latitude"
+      - "sin_longitude"
+      - "insolation"
+  
+    imputer:
+      default: "none"
+    remapper:
+      default: "none"
+  
+    processors:
+      normalizer:
+        _target_: anemoi.models.preprocessing.normalizer.InputNormalizer
+        _convert_: all
+        config: ${data.zip.1.normalizer}
+
+
+    
+dataloader:
+  dataloader_module: anemoi.training.data.datamodule
+  dataloader_func: AnemoiDatasetsZipModule
+
+  batch_size:
+    training: 1
+    validation: 1
+    test: 1
+    predict: 1
+
+  num_workers:
+    training: 2
+    validation: 2
+    test: 2
+    predict: 2
+
+  dataset_data:
+    cutout:
+    - dataset: ${hardware.paths.data}/MEPS/${hardware.files.dataset_lam}
+    - dataset: ${hardware.paths.data}/ERA5/${hardware.files.dataset}
+    adjust: all
+
+  dataset_obs:
+    dataset: ${hardware.paths.data}/lightning/${hardware.files.dataset_obs}
+
+  dataset:
+    zip:
+      - dataset: ${dataloader.dataset_data}
+      - dataset: ${dataloader.dataset_obs}
+    adjust: ["start", "end"]
+
+  # KEEP THESE DATES. 
+  training:
+    start: 2020-02-06
+    end: 2022-05-31
+  validation:
+    start: 2022-06-01
+    end: 2023-05-31
+  test:
+    start: 2022-06-01
+    end: 2023-05-31
+
+hardware:
+  paths:
+    data: /pfs/lustrep4/scratch/project_465001383/aifs/dataset/
+    output: /pfs/lustrep4/scratch/project_465001383/aifs/experiments/lightning/initial_test/
+    graph: ${hardware.paths.output}
+  files:
+    dataset: aifs-od-an-oper-0001-mars-o96-2016-2023-6h-v6.zarr 
+    dataset_lam: aifs-meps-10km-2020-2024-6h-v6.zarr 
+    dataset_obs: breeze_lightning.zarr
+    graph: breeze_lightning.pt
+
+  num_gpus_per_model: 1
+
+
+diagnostics:
+  log:
+    mlflow:
+      enabled: True
+      authentication: True
+      tracking_uri: https://mlflow.ecmwf.int
+      experiment_name: 'metno'
+      run_name: breeze_lightning 
+
+model:
+  num_channels: 512
+  use_obs_fuser: False
+
+  bounding:
+    - _target_: anemoi.models.layers.bounding.ReluBounding #[0, infinity)
+      variables:
+      - tp
+    - _target_: anemoi.models.layers.bounding.SigmoidBounding  # (0, 1)
+      variables:
+      - te
+ 
+training:
+  max_steps: 50000
+  
+  train_module: anemoi.training.train.netatmo_forecaster
+  train_function: NetatmoGraphForecaster
+  dataset_loss_scaling: [1.0, 0.05] 
+
+  node_loss_weights:
+  - _target_: anemoi.training.losses.nodeweights.ReweightedGraphNodeAttribute
+    target_nodes: ${graph.input_nodes.data}
+    node_attribute: area_weight
+    scaled_attribute: cutout
+    weight_frac_of_total: 0.25
+  - _target_: anemoi.training.losses.nodeweights.GraphNodeAttribute
+    target_nodes: ${graph.input_nodes.netatmo}
+    node_attribute: area_weight
+
+  # Use binary cross entropy for lightning. 
+  training_loss:
+    # loss class to initialise
+    - _target_: anemoi.training.losses.mse.WeightedMSELoss
+      scalars: ['variable']
+      ignore_nans: False
+    - _target_: anemoi.training.losses.binarycrossentropy.BinaryCrossEntropy
+      scalars: ['variable']
+      ignore_nans: True
+
+  validation_metrics:
+    # loss class to initialise
+    - _target_: anemoi.training.losses.mse.WeightedMSELoss
+      scalars: []
+      ignore_nans: True
+    - _target_: anemoi.training.losses.binarycrossentropy.BinaryCrossEntropy
+      scalars: []
+      ignore_nans: True
