@@ -184,7 +184,7 @@ model:
     - _target_: anemoi.models.layers.bounding.ReluBounding #[0, infinity)
       variables:
       - tp
-    - _target_: anemoi.models.layers.bounding.SigmoidBounding  # (0, 1)
+    - _target_: anemoi.models.layers.bounding.LinearBounding  # (0, 1)
       variables:
       - te
  
@@ -211,15 +211,15 @@ training:
     - _target_: anemoi.training.losses.mse.WeightedMSELoss
       scalars: ['variable']
       ignore_nans: False
-    - _target_: anemoi.training.losses.binarycrossentropy.BinaryCrossEntropy
+    - _target_: anemoi.training.losses.mse.WeightedMSELoss
       scalars: ['variable']
-      ignore_nans: True
+      ignore_nans: False
 
   validation_metrics:
     # loss class to initialise
     - _target_: anemoi.training.losses.mse.WeightedMSELoss
       scalars: []
-      ignore_nans: True
-    - _target_: anemoi.training.losses.binarycrossentropy.BinaryCrossEntropy
+      ignore_nans: False
+    - _target_: anemoi.training.losses.mse.WeightedMSELoss
       scalars: []
-      ignore_nans: True
+      ignore_nans: False
