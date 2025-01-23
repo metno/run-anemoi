@@ -184,16 +184,16 @@ model:
     - _target_: anemoi.models.layers.bounding.ReluBounding #[0, infinity)
       variables:
       - tp
-    - _target_: anemoi.models.layers.bounding.LinearBounding  # (0, 1)
+    - _target_: anemoi.models.layers.bounding.ClampedBounding  # (- 5, 5)
       variables:
       - te
  
 training:
-  max_steps: 50000
+  max_steps: 20000
   
   train_module: anemoi.training.train.netatmo_forecaster
   train_function: NetatmoGraphForecaster
-  dataset_loss_scaling: [1.0, 0.05] 
+  dataset_loss_scaling: [1.0, 0.005] 
 
   node_loss_weights:
   - _target_: anemoi.training.losses.nodeweights.ReweightedGraphNodeAttribute
@@ -211,7 +211,7 @@ training:
     - _target_: anemoi.training.losses.mse.WeightedMSELoss
       scalars: ['variable']
       ignore_nans: False
-    - _target_: anemoi.training.losses.mse.WeightedMSELoss
+    - _target_: anemoi.training.losses.binarycrossentropywithlogits.BinaryCrossEntropyWithLogitsLoss
       scalars: ['variable']
       ignore_nans: False
 
@@ -220,6 +220,6 @@ training:
     - _target_: anemoi.training.losses.mse.WeightedMSELoss
       scalars: []
       ignore_nans: False
-    - _target_: anemoi.training.losses.mse.WeightedMSELoss
+    - _target_: anemoi.training.losses.binarycrossentropywithlogits.BinaryCrossEntropyWithLogitsLoss
       scalars: []
       ignore_nans: False
