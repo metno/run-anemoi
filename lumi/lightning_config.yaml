@@ -156,15 +156,22 @@ dataloader:
 hardware:
   paths:
     data: /pfs/lustrep4/scratch/project_465001383/aifs/dataset/
-    output: /pfs/lustrep4/scratch/project_465001383/aifs/experiments/lightning/initial_test/
-    graph: ${hardware.paths.output}
+    output: /pfs/lustrep4/scratch/project_465001383/aifs/experiments/breeze_lightning/transfer_learning/
+    graph: /pfs/lustrep4/scratch/project_465001383/aifs/graphs/
   files:
-    dataset: aifs-od-an-oper-0001-mars-o96-2016-2023-6h-v6.zarr 
-    dataset_lam: aifs-meps-10km-2020-2024-6h-v6.zarr 
+    dataset: aifs-od-an-oper-0001-mars-n320-2019-2023-6h-v6.zarr #aifs-od-an-oper-0001-mars-o96-2016-2023-6h-v6.zarr
+    dataset_lam: aifs-meps-2.5km-2020-2024-6h-v6.zarr #aifs-meps-10km-2020-2024-6h-v6.zarr
     dataset_obs: breeze_lightning.zarr
-    graph: breeze_lightning.pt
+    graph: breeze_lightning_high_res.pt
 
-  num_gpus_per_model: 1
+  num_gpus_per_model: 8
+
+graph:
+  nodes:
+    hidden:
+      node_builder:
+        lam_resolution: 10
+        global_resolution: 7
 
 
 diagnostics:
@@ -177,23 +184,39 @@ diagnostics:
       run_name: breeze_lightning 
 
 model:
-  num_channels: 512
+  num_channels: 1024
   use_obs_fuser: False
 
   bounding:
     - _target_: anemoi.models.layers.bounding.ReluBounding #[0, infinity)
       variables:
       - tp
-    - _target_: anemoi.models.layers.bounding.ClampedBounding  # (- 5, 5)
+    - _target_: anemoi.models.layers.bounding.LinearBounding  # (- 5, 5)
       variables:
       - te
  
 training:
-  max_steps: 20000
+  max_steps: 5000
+  lr:
+    rate: 1.0e-5
+    
   
   train_module: anemoi.training.train.netatmo_forecaster
   train_function: NetatmoGraphForecaster
-  dataset_loss_scaling: [1.0, 0.005] 
+  dataset_loss_scaling: [1.0, 0.05] 
+  run_id: null #cb63da45f3994dd0b764b31a00d98d64
+  fork_run_id: 1901acc6e0634b81a0d4ed9341177231
+  load_weights_only: True
+  transfer_learning: False
+  transfer_learning_with_layer_dict: True
+  layer_dict:
+    .encoder.: .encoder_data.
+    .decoder.: .decoder_data.
+    
+  freeze_layers:
+    active: True
+    layers: ['.encoder_data.', '.model.processor.', '.decoder_data.']
+
 
   node_loss_weights:
   - _target_: anemoi.training.losses.nodeweights.ReweightedGraphNodeAttribute
