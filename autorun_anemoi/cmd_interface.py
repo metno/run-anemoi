@@ -15,7 +15,7 @@ def get_parser():
     parser.add_argument('--python_script', type=str, default='train.py', help='Python script to be executed')
     parser.add_argument('--inference_python_script', type=str, default='inference.py', help='Inference Python script to be executed')
     parser.add_argument('-j', '--inference_job_yaml', type=str, default=None, help='Path to inference yaml file containing sbatch commands')
-    parser.add_argument('--system', type=str, default='leonardo', help='Where to run anemoi training')
+    parser.add_argument('--system', type=str, default='lumi', help='Where to run anemoi training')
     return parser
 
 

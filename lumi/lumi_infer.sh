@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --output=/users/%u/%x_%j.out
 #SBATCH --error=/users/%u/%x_%j.err
-#SBATCH --nodes=1
+#SBATCH --nodes=2
 #SBATCH --ntasks-per-node=8
 #SBATCH --account=project_465001383
 #SBATCH --partition=dev-g
@@ -14,12 +14,13 @@
 #Change this
 CONFIG_NAME= #Full path
 
+
 #Should not have to change these
 PROJECT_DIR=/scratch/$SLURM_JOB_ACCOUNT
 CONTAINER_SCRIPT=$(pwd -P)/run_pytorch_infer.sh
 chmod 770 ${CONTAINER_SCRIPT}
 CONFIG_DIR=$(pwd -P)
-CONTAINER=$PROJECT_DIR/aifs/container/containers/bris-inference-pytorch-2.2.2-rocm-5.6.61-py-3.11.5.sif
+CONTAINER=$PROJECT_DIR/aifs/container/containers/bris-inference-pytorch-2.2.2-rocm-5.6.61-py-3.11.5-v2.sif
 VENV=$(pwd -P)/.venv
 export VIRTUAL_ENV=$VENV
 
