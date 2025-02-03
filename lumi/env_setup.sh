@@ -11,7 +11,10 @@ export PATH=$PATH:VIRTUAL_ENV/bin
 for repo in datasets models training graphs; do
     if [ ! -d anemoi-$repo ]; then
         echo "Cloning $repo"
-        git clone git@github.com:metno/anemoi-$repo.git
+        git clone https://github.com/metno/anemoi-$repo.git
+        cd anemoi-$repo
+	git remote set-url origin git@github.com:metno/anemoi-$repo.git
+        cd ..
     fi
     pip install --user --no-deps -e anemoi-$repo
 done
@@ -19,7 +22,10 @@ done
 for repo in utils; do
     if [ ! -d anemoi-$repo ]; then
         echo "Cloning $repo"
-        git clone git@github.com:ecmwf/anemoi-$repo.git
+        git clone https://github.com/ecmwf/anemoi-$repo.git
+        cd anemoi-$repo
+        git remote set-url origin git@github.com:metno/anemoi-$repo.git
+        cd ..
     fi
     pip install --user --no-deps -e anemoi-$repo
 done

@@ -10,6 +10,9 @@ export PATH=$PATH:VIRTUAL_ENV/bin
 
 if [ ! -d bris-inference ]; then
     echo "Cloning bris-inference"
-    git clone git@github.com:metno/bris-inference.git
+    git clone https://github.com/metno/bris-inference.git
+    cd bris-inference
+    git remote set-url origin git@github.com:metno/bris-inference.git
+    cd ..
 fi
 pip install --user --no-deps -e bris-inference
