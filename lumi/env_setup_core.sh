@@ -19,19 +19,18 @@ fi
 
 # Install training, models, and graphs from anemoi-core
 echo "Installing training, models, and graphs from anemoi-core"
-pip install --user --no-deps -e anemoi-core/training
-pip install --user --no-deps -e anemoi-core/models
-pip install --user --no-deps -e anemoi-core/graphs
+pip install --no-deps -e anemoi-core/training
+pip install --no-deps -e anemoi-core/models
+pip install --no-deps -e anemoi-core/graphs
 
 # Clone and install utils if not already cloned
 if [ ! -d anemoi-utils ]; then
     echo "Cloning anemoi-utils from ecmwf"
     git clone https://github.com/ecmwf/anemoi-utils.git
     cd anemoi-utils
-    git remote set-url origin git@github.com:ecmwf/anemoi-utils.git
     cd ..
 fi
-pip install --user --no-deps -e anemoi-utils
+pip install --no-deps -e anemoi-utils
 
 # Clone and install datasets if not already cloned
 if [ ! -d anemoi-datasets ]; then
@@ -41,4 +40,4 @@ if [ ! -d anemoi-datasets ]; then
     git remote set-url origin git@github.com:metno/anemoi-datasets.git
     cd ..
 fi
-pip install --user --no-deps -e anemoi-datasets
+pip install --no-deps -e anemoi-datasets

@@ -15,4 +15,4 @@ if [ ! -d bris-inference ]; then
     git remote set-url origin git@github.com:metno/bris-inference.git
     cd ..
 fi
-pip install --user --no-deps -e bris-inference
+pip install --no-deps -e bris-inference
