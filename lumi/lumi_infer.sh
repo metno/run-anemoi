@@ -12,7 +12,7 @@
 
 
 #Change this
-CONFIG_NAME=$(pwd -P)/lightning_infer_olav.yaml
+CONFIG_NAME=$(pwd -P)/lightning_infer.yaml
 
 
 #Should not have to change these

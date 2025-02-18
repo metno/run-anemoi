@@ -178,6 +178,7 @@ diagnostics:
   log:
     mlflow:
       enabled: True
+      offline: True
       authentication: True
       tracking_uri: https://mlflow.ecmwf.int
       experiment_name: 'metno'
@@ -213,8 +214,8 @@ training:
     .encoder.: .encoder_data.
     .decoder.: .decoder_data.
     
-  freeze_layers:
-    active: True
+  freeze_layers:  # This freezes MEPS encoder, processor and decoder.
+    active: True 
     layers: ['.encoder_data.', '.model.processor.', '.decoder_data.']
 
 
