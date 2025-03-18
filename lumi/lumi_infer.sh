@@ -1,18 +1,18 @@
 #!/bin/bash
 #SBATCH --output=/users/%u/%x_%j.out
 #SBATCH --error=/users/%u/%x_%j.err
-#SBATCH --nodes=1
+#SBATCH --nodes=4
 #SBATCH --ntasks-per-node=8
 #SBATCH --account=project_465001383
 #SBATCH --partition=standard-g
 #SBATCH --gpus-per-node=8
-#SBATCH --time=00:10:00
+#SBATCH --time=12:00:00
 #SBATCH --job-name=infer
 #SBATCH --exclusive
 
 
 #Change this
-CONFIG_NAME=$(pwd -P)/lightning_infer.yaml
+CONFIG_NAME=$(pwd -P)/lightning_infer_new.yaml
 
 
 #Should not have to change these

@@ -12,9 +12,9 @@
 
 
 #Change this
-CONFIG_NAME=lightning_config.yaml # This file should be located in run-anemoi/lumi
+CONFIG_NAME=lightning_config_new_forcings.yaml # This file should be located in run-anemoi/lumi
 
-# NOTE: Actually, somehow the program rather locates the file in anemoi-training/src/anemoi/config/
+# NOTE: Actually, somehow the program rather locates the file in anemoi-training/src/anemoi/training/config/
 # No clue why it does this.
 # I have to redo all of the tests now...
 

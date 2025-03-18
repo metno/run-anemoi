@@ -77,10 +77,10 @@ data:
     - "sin_latitude"
     - "sin_longitude"
     - "insolation"
-    - "z"
+    #- "z"
   
     diagnostic:
-    - te
+    - thunder_event
   
     remapped:
   
@@ -89,9 +89,8 @@ data:
       std:
       min-max:
       max:
-      - "z"
       none:
-      - "te"
+      - "thunder_event"
       - "cos_latitude"
       - "cos_longitude"
       - "sin_latitude"
@@ -161,8 +160,8 @@ hardware:
   files:
     dataset: aifs-od-an-oper-0001-mars-n320-2019-2023-6h-v6.zarr
     dataset_lam: aifs-meps-2.5km-2020-2024-6h-v6.zarr
-    dataset_obs: breeze_lightning.zarr
-    graph: breeze_lightning_high_res.pt
+    dataset_obs: breeze_force_o96_6h.zarr
+    graph: breeze_lightning_high_res_force.pt
 
   num_gpus_per_model: 8
 
@@ -194,7 +193,7 @@ model:
       - tp
     - _target_: anemoi.models.layers.bounding.LinearBounding  # (- 5, 5)
       variables:
-      - te
+      - thunder_event
  
 training:
   max_steps: 5000
