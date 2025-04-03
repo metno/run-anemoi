@@ -133,7 +133,13 @@ dataloader:
     adjust: all
 
   dataset_obs:
-    dataset: ${hardware.paths.data}/lightning/${hardware.files.dataset_obs}
+    dataset:
+      join:
+        - dataset: ${hardware.paths.data}/lightning/${hardware.files.dataset_obs}
+        - dataset: ${hardware.paths.data}/lightning/${hardware.files.dataset_obs_z}
+    mask_from_dataset:
+      dataset: ${hardware.paths.data}/lightning/${hardware.files.dataset_obs_mask}
+      field: thunder_mask_555
 
   dataset:
     zip:
@@ -161,6 +167,8 @@ hardware:
     dataset: aifs-od-an-oper-0001-mars-n320-2019-2023-6h-v6.zarr
     dataset_lam: aifs-meps-2.5km-2020-2024-6h-v6.zarr
     dataset_obs: breeze_force_o96_6h.zarr
+    dataset_obs_z: breeze_force_o96_6h_z.zarr
+    dataset_obs_mask: lightning_mask.zarr
     graph: breeze_lightning_high_res_force.pt
 
   num_gpus_per_model: 8
