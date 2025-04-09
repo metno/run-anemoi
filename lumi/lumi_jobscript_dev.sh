@@ -7,25 +7,26 @@
 #SBATCH --partition=dev-g
 #SBATCH --gpus-per-node=8
 #SBATCH --time=01:00:00
-#SBATCH --job-name=breeze_lightning_transfer
+#SBATCH --job-name=breeze_z
 #SBATCH --exclusive
 
 
 #Change this
-CONFIG_NAME=lightning_config_new_forcings.yaml # This file should be located in run-anemoi/lumi
+CONFIG_NAME=lightning_config.yaml # This file should be located in run-anemoi/lumi
 
 # NOTE: Actually, somehow the program rather locates the file in anemoi-training/src/anemoi/training/config/
 # No clue why it does this.
 # I have to redo all of the tests now...
 
 #Should not have to change these
-PROJECT_DIR=/scratch/$SLURM_JOB_ACCOUNT
+PROJECT_DIR=/scratch/project_465001383/
 CONTAINER_SCRIPT=$(pwd -P)/run_pytorch.sh
 CONFIG_DIR=$(pwd -P)
 CONTAINER=$PROJECT_DIR/aifs/container/containers/anemoi-training-pytorch-2.2.2-rocm-5.6.1-py-3.11.5.sif
 VENV=$(pwd -P)/.venv
 export VIRTUAL_ENV=$VENV
-
+echo $PROJECT_DIR
+echo $CONFIG_DIR
 module load LUMI/23.09 partition/G
 export SINGULARITYENV_LD_LIBRARY_PATH=/opt/ompi/lib:${EBROOTAWSMINOFIMINRCCL}/lib:/opt/cray/xpmem/2.4.4-2.3_9.1__gff0e1d9.shasta/lib64:${SINGULARITYENV_LD_LIBRARY_PATH}
 

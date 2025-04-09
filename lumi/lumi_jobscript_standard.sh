@@ -3,24 +3,25 @@
 #SBATCH --error=/users/%u/%x_%j.err
 #SBATCH --nodes=32
 #SBATCH --ntasks-per-node=8
-#SBATCH --account=project_465001383
+#SBATCH --account=project_465001893
 #SBATCH --partition=standard-g
 #SBATCH --gpus-per-node=8
 #SBATCH --time=00:30:00
-#SBATCH --job-name=breeze_lightning_transfer_32_nodes
+#SBATCH --job-name=breeze_clouds
 #SBATCH --exclusive
 
 
 #Change this
 # CONFIG_NAME=lightning_config.yaml # This file should be located in run-anemoi/lumi
-CONFIG_NAME=lightning_config_new_forcings.yaml # This file should be located in run-anemoi/lumi
+CONFIG_NAME=lightning_config.yaml # This file should be located in run-anemoi/lumi
 
 # NOTE: Actually, somehow the program rather locates the file in anemoi-training/src/anemoi/config/
 # No clue why it does this.
 # I have to redo all of the tests now...
 
 #Should not have to change these
-PROJECT_DIR=/scratch/$SLURM_JOB_ACCOUNT
+PROJECT_DIR=/scratch/project_465001383/
+# PROJECT_DIR=/scratch/$SLURM_JOB_ACCOUNT
 CONTAINER_SCRIPT=$(pwd -P)/run_pytorch.sh
 chmod 770 ${CONTAINER_SCRIPT}
 CONFIG_DIR=$(pwd -P)
