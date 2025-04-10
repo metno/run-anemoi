@@ -6,14 +6,14 @@
 #SBATCH --account=project_465001893
 #SBATCH --partition=standard-g
 #SBATCH --gpus-per-node=8
-#SBATCH --time=00:30:00
+#SBATCH --time=04:00:00
 #SBATCH --job-name=breeze_clouds
 #SBATCH --exclusive
 
 
 #Change this
 # CONFIG_NAME=lightning_config.yaml # This file should be located in run-anemoi/lumi
-CONFIG_NAME=lightning_config.yaml # This file should be located in run-anemoi/lumi
+CONFIG_NAME=lightning_config_z.yaml # This file should be located in run-anemoi/lumi
 
 # NOTE: Actually, somehow the program rather locates the file in anemoi-training/src/anemoi/config/
 # No clue why it does this.
