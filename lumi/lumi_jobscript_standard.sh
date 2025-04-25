@@ -6,7 +6,7 @@
 #SBATCH --account=project_465001893
 #SBATCH --partition=standard-g
 #SBATCH --gpus-per-node=8
-#SBATCH --time=04:00:00
+#SBATCH --time=12:00:00
 #SBATCH --job-name=breeze_clouds
 #SBATCH --exclusive
 

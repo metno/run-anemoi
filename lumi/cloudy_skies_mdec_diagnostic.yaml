@@ -1,0 +1,310 @@
+defaults:
+- data: zip
+- dataloader: zip
+- diagnostics: evaluation
+- hardware: slurm
+- graph: meps_multidec
+- model: fuser
+- training: zip
+- override hydra/hydra_logging: disabled  
+- override hydra/job_logging: disabled 
+- _self_
+- override diagnostics/plot: none
+
+hydra:  
+  output_subdir: null  
+  run:  
+    dir: .
+
+
+dataloader:
+  dataloader_module: anemoi.training.data.datamodule
+  dataloader_func: AnemoiDatasetsZipModule
+
+  batch_size:
+    training: 1
+    validation: 1
+    test: 1
+    predict: 1
+
+  limit_batches:
+    training: null
+    validation: null
+
+  num_workers:
+    training: 2
+    validation: 2
+    test: 2
+    predict: 2
+
+  dataset_data:
+    cutout:
+    - dataset: ${hardware.paths.data}/MEPS/${hardware.files.dataset_lam}
+      trim_edge: 50
+      reorder: sort
+    - join:
+      - dataset: ${hardware.paths.data}/ERA5/${hardware.files.dataset_global_atm}
+        drop: ["sdor", "slor", "cp", "u_600", "v_600", "z_600", "t_600", "q_600", "w_600"]
+      - dataset: ${hardware.paths.data}/ERA5/${hardware.files.dataset_global_land}
+        select: ["lcc", "mcc", "tcc", "strd", "ssrd"]
+      adjust: ["start", "end"]
+      reorder: sort
+    min_distance_km: 0
+    adjust: all
+    statistics: 
+      join: 
+      - dataset: ${hardware.paths.data}/ERA5/aifs-ea-an-oper-0001-mars-o96-1979-2022-6h-v6.zarr
+        drop: ["sdor", "slor", "cp", "u_600", "v_600", "z_600", "t_600", "q_600", "w_600"]
+      - dataset: ${hardware.paths.data}/ERA5/aifs-ea-an-oper-0001-mars-o96-1979-2023-6h-v3-land.zarr
+        select: ["lcc", "mcc", "tcc", "strd", "ssrd"]
+      adjust: ["start", "end"]
+      reorder: sort
+
+  dataset_obs:
+    dataset: ${hardware.paths.data}/MEPS/${hardware.files.dataset_lam}
+    trim_edge: 50
+    select: 
+      - "10fg"
+      - "10si"
+      - "cbh"
+      - "cos_julian_day"
+      - "cos_latitude"
+      - "cos_local_time"
+      - "cos_longitude"
+      - "fog"
+      - "hcc"
+      - "insolation"
+      - "lsm"
+      - "sin_julian_day"
+      - "sin_latitude"
+      - "sin_local_time"
+      - "sin_longitude"
+      - "vis"   
+      - "z"
+
+  dataset:
+    zip:
+      - dataset: ${dataloader.dataset_data}
+      - dataset: ${dataloader.dataset_obs}
+    adjust: ["start", "end"]
+
+  training:
+    start: 2020-02-06
+    end: 2022-05-31
+  validation:
+    start: 2022-06-01
+    end: 2023-05-31
+  test:
+    start: 2022-06-01
+    end: 2023-05-31
+
+hardware:
+  paths:
+    data: /pfs/lustrep4/scratch/project_465001383/aifs/dataset/
+    output: /pfs/lustrep4/scratch/project_465001383/aifs/experiments/cloudy_skies_multidecoder/
+    graph: /pfs/lustrep4/scratch/project_465001383/aifs/graphs/
+  files:
+    dataset_lam: aifs-meps-2.5km-2020-2023-6h-v7.zarr
+    dataset_global_atm: aifs-ea-an-oper-0001-mars-n320-1979-2022-6h-v6.zarr
+    dataset_global_land: aifs-ea-an-oper-0001-mars-n320-1979-2023-6h-v1-land.zarr
+    graph: cloudy_skies_multidecoder.pt
+
+  num_gpus_per_model: 8
+
+
+diagnostics:
+  checkpoint:
+    every_n_minutes:
+      save_frequency: null
+      num_models_saved: 0
+      
+    every_n_epochs:
+      num_models_saved: 3
+
+  log:
+    mlflow:
+      enabled: True
+      offline: True
+      authentication: True
+      tracking_uri: https://mlflow.ecmwf.int
+      experiment_name: 'metno'
+      run_name: cloudy_skies_multidecoder_diagnostic
+
+model:
+  num_channels: 1024
+  use_obs_fuser: False
+
+  bounding:
+    -
+      - _target_: anemoi.models.layers.bounding.ReluBounding #[0, infinity)
+        variables:
+        - tp
+      - _target_: anemoi.models.layers.bounding.HardtanhBounding
+        variables:
+        - tcc
+        - mcc
+        - lcc
+        min_val: 0
+        max_val: 1
+    -
+      - _target_: anemoi.models.layers.bounding.ReluBounding
+        variables:
+        - 10fg
+        - vis
+        - 10si
+        - cbh
+      - _target_: anemoi.models.layers.bounding.HardtanhBounding
+        variables: 
+        - hcc
+        - fog
+        min_val: 0
+        max_val: 1
+ 
+training:
+  train_module: anemoi.training.train.netatmo_forecaster
+  train_function: NetatmoGraphForecaster
+  dataset_loss_scaling: [1.0, 0.1]
+  run_id: null 
+  fork_run_id: d2a4900001b44071bc6a1b11e9e48f0b
+  load_weights_only: True
+  transfer_learning: False
+  transfer_learning_with_layer_dict: True
+  layer_dict:
+    .encoder.: .encoder_data.
+    .decoder.: .decoder_data.
+
+  freeze_layers:
+    active: True
+    layers: ['.encoder_data.', '.model.processor.', '.decoder_data.']
+
+
+  max_steps: 5000
+  lr:
+    rate: 6.25e-05
+    min: 3e-7
+
+  node_loss_weights:
+  - _target_: anemoi.training.losses.nodeweights.ReweightedGraphNodeAttribute
+    target_nodes: ${graph.input_nodes.data}
+    node_attribute: area_weight
+    scaled_attribute: cutout
+    weight_frac_of_total: 0.23
+  - _target_: anemoi.training.losses.nodeweights.GraphNodeAttribute
+    target_nodes: ${graph.input_nodes.meps_dec}
+    node_attribute: area_weight
+
+
+data:
+  zip:
+  - forcing:
+    - "cos_latitude"
+    - "cos_longitude"
+    - "sin_latitude"
+    - "sin_longitude"
+    - "cos_julian_day"
+    - "cos_local_time"
+    - "sin_julian_day"
+    - "sin_local_time"
+    - "insolation"
+    - "lsm"
+    - "z"
+
+    diagnostic:
+    - "tp"
+    - "ssrd"
+    - "strd"
+
+    remapped:
+
+    normalizer:
+      default: "mean-std"
+      std:
+      - "tp"
+
+      min-max:
+      max:
+      - "z"
+      none:
+      - "cos_latitude"
+      - "cos_longitude"
+      - "sin_latitude"
+      - "sin_longitude"
+      - "cos_julian_day"
+      - "cos_local_time"
+      - "sin_julian_day"
+      - "sin_local_time"
+      - "insolation"
+      - "lsm"
+      - "lcc"
+      - "mcc"
+      - "tcc"
+
+    imputer:
+      default: "none"
+    remapper:
+      default: "none"
+
+    processors:
+      normalizer:
+        _target_: anemoi.models.preprocessing.normalizer.InputNormalizer
+        _convert_: all
+        config: ${data.zip.0.normalizer}
+
+  - forcing:
+    - "cos_latitude"
+    - "cos_longitude"
+    - "sin_latitude"
+    - "sin_longitude"
+    - "cos_julian_day"
+    - "cos_local_time"
+    - "sin_julian_day"
+    - "sin_local_time"
+    - "insolation"
+    - "lsm"
+    - "z"
+
+    diagnostic:
+    - "10fg"
+    - "vis"
+    - "10si"
+    - "cbh"
+    - "fog"
+    - "hcc"
+
+    remapped:
+
+    normalizer:
+      default: "mean-std"
+      std:
+      - "10fg"
+      - "vis"
+      - "10si"
+      - "cbh"
+
+      min-max:
+      max:
+      - "z"
+      none:
+      - "cos_latitude"
+      - "cos_longitude"
+      - "sin_latitude"
+      - "sin_longitude"
+      - "cos_julian_day"
+      - "cos_local_time"
+      - "sin_julian_day"
+      - "sin_local_time"  
+      - "insolation"
+      - "fog"
+      - "hcc"
+      - "lsm"
+
+    imputer:
+      default: "none"
+    remapper:
+      default: "none"
+
+    processors:
+      normalizer:
+        _target_: anemoi.models.preprocessing.normalizer.InputNormalizer
+        _convert_: all
+        config: ${data.zip.1.normalizer}
