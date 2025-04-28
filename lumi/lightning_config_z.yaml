@@ -87,9 +87,9 @@ dataloader:
 
 hardware:
   paths:
-    data: /pfs/lustrep4/scratch/project_465001383/aifs/dataset/
-    output: /pfs/lustrep4/scratch/project_465001383/aifs/experiments/breeze_lightning/transfer_learning/
-    graph: /pfs/lustrep4/scratch/project_465001383/aifs/graphs/
+    data: /pfs/lustrep4/scratch/project_465001893/anemoi/datasets/
+    output: /pfs/lustrep4/scratch/project_465001893/anemoi/experiments/breeze_lightning/wmse_thunder_count/
+    graph: /pfs/lustrep4/scratch/project_465001893/anemoi/graphs/
   files:
     dataset_lam: aifs-meps-2.5km-2020-2023-6h-v7.zarr
     dataset_global_atm: aifs-ea-an-oper-0001-mars-n320-1979-2022-6h-v6.zarr

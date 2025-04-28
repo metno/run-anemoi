@@ -12,16 +12,14 @@
 
 
 #Change this
-# CONFIG_NAME=lightning_config.yaml # This file should be located in run-anemoi/lumi
 CONFIG_NAME=lightning_config_z.yaml # This file should be located in run-anemoi/lumi
 
 # NOTE: Actually, somehow the program rather locates the file in anemoi-training/src/anemoi/config/
 # No clue why it does this.
 # I have to redo all of the tests now...
 
-#Should not have to change these
-PROJECT_DIR=/scratch/project_465001383/
-# PROJECT_DIR=/scratch/$SLURM_JOB_ACCOUNT
+#Should not have to change these (except if working with different projects numbers)
+PROJECT_DIR=/scratch/$SLURM_JOB_ACCOUNT
 CONTAINER_SCRIPT=$(pwd -P)/run_pytorch.sh
 chmod 770 ${CONTAINER_SCRIPT}
 CONFIG_DIR=$(pwd -P)

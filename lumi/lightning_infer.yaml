@@ -7,18 +7,20 @@ defaults:
 start_date: 2022-05-01T00:00:00
 end_date: 2022-05-01T18:00:00 #2023-06-01T18:00:00
 
-checkpoint_path: /pfs/lustrep4/scratch/project_465001383/aifs/experiments/breeze_lightning/transfer_learning/checkpoint/63554362654a41dea62c3fa13316352f/inference-last.ckpt
+# Update to latest checkpoint:
+checkpoint_path: /pfs/lustrep4/scratch/project_465001893/anemoi/experiments/breeze_lightning/transfer_learning/checkpoint/63554362654a41dea62c3fa13316352f/inference-last.ckpt
 
 leadtimes: 12
 timestep: 6h
 frequency: 6h
-workdir: /pfs/lustrep4/scratch/project_465001383/erslando/lightning-anemoi-training/workdir/
+workdir: /pfs/lustrep4/scratch/project_465001893/erslando/lightning-anemoi-training/workdir/
 
 deterministic: True
 inference_num_chunks: 1
 
-run_name: breeze_lightning
+run_name: breeze_cloudy_lightning
 
+# Have to change this for the new dataset structure.
 dataset_data:
   cutout:
   - dataset: ${hardware.paths.data}/MEPS/${hardware.files.lam_dataset}
@@ -45,7 +47,7 @@ dataloader:
   num_workers: 1
   pin_memory: True
 
-  read_group_size: 1 #Do not change this, not implemented properly
+  read_group_size: 1 # Do not change this, not implemented properly
 
   predict:
     dataset: ${dataset}
@@ -59,9 +61,9 @@ dataloader:
 
 hardware:
   paths:
-    data: /pfs/lustrep4/scratch/project_465001383/aifs/dataset/
-    workdir: /pfs/lustrep4/scratch/project_465001383/erslando/lightning-anemoi-training/workdir/
-    output: /pfs/lustrep4/scratch/project_465001383/erslando/lightning-anemoi-training/inference_output/
+    data: /pfs/lustrep4/scratch/project_465001893/aifs/datasets/
+    workdir: /pfs/lustrep4/scratch/project_465001893/erslando/lightning-anemoi-training/workdir/
+    output: /pfs/lustrep4/scratch/project_465001893/erslando/lightning-anemoi-training/inference_output/
   files: # Change these to the correct ones.
     global_dataset: aifs-od-an-oper-0001-mars-n320-2019-2023-6h-v6.zarr
     lam_dataset: aifs-meps-2.5km-2020-2024-6h-v6.zarr
@@ -99,7 +101,7 @@ routing:
     outputs:
       - netcdf: 
           filename_pattern: ${hardware.paths.output}predictions/lightning_pred_%Y%m%dT%HZ.nc
-          variables: [te]
+          variables: [thunder_count_25km]
       - verif:
           filename: ${hardware.paths.output}verif/te/lightning_100_resolution.nc
           variable: te
