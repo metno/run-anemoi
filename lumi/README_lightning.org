@@ -1,0 +1,28 @@
+* Lightning setup
+** Creating datsets
+We have created a lightning dataset from the last 3 seasons, which
+include the variables thunder_count (number of lightning strikes
+during the last 6h), thunder_count_25km (sum of thunder_count inside a
+25km box), and thunder_event (equal to 1 if thunder_count_25km >=
+20). In total we have 3 datasets, that we combine in the training
+process with anemoi-datasets:
+*** breeze_force_o96_6h.zarr
+This dataset includes the variables 
+**** cos_julian_day
+**** cos_latitude 
+**** cos_local_time
+**** cos_longitude
+**** insolation
+**** latitude
+**** longitude
+**** sin_julian_day
+**** sin_latitude
+**** sin_local_time
+**** sin_longitude
+**** thunder_count
+**** thunder_count_25km
+**** thunder_event
+*** lightning_z.zarr
+*** lightning_mask.zarr
+
+

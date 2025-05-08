@@ -22,7 +22,8 @@ CONFIG_NAME=lightning_config_z.yaml # This file should be located in run-anemoi/
 PROJECT_DIR=/scratch/$SLURM_JOB_ACCOUNT
 CONTAINER_SCRIPT=$(pwd -P)/run_pytorch.sh
 CONFIG_DIR=$(pwd -P)
-CONTAINER=$PROJECT_DIR/aifs/container/containers/anemoi-training-pytorch-2.2.2-rocm-5.6.1-py-3.11.5.sif
+# CONTAINER=/scratch/project_465001383/aifs/container/containers/anemoi-training-pytorch-2.2.2-rocm-5.6.1-py-3.11.5.sif
+CONTAINER=$PROJECT_DIR/anemoi/containers/anemoi-training-pytorch-2.3.1-rocm-6.0.3-py-3.11.5.sif
 VENV=$(pwd -P)/.venv
 export VIRTUAL_ENV=$VENV
 echo $PROJECT_DIR
@@ -40,6 +41,5 @@ srun --cpu-bind=$CPU_BIND \
                      -B /var/spool/slurmd \
                      -B /opt/cray \
                      -B /usr/lib64 \
-                     -B /usr/lib64/libjansson.so.4 \
         $CONTAINER $CONTAINER_SCRIPT $CONFIG_DIR $CONFIG_NAME
 

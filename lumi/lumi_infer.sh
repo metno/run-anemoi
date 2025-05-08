@@ -3,16 +3,16 @@
 #SBATCH --error=/users/%u/%x_%j.err
 #SBATCH --nodes=4
 #SBATCH --ntasks-per-node=8
-#SBATCH --account=project_465001383
+#SBATCH --account=project_465001893
 #SBATCH --partition=standard-g
 #SBATCH --gpus-per-node=8
-#SBATCH --time=12:00:00
+#SBATCH --time=01:00:00
 #SBATCH --job-name=infer
 #SBATCH --exclusive
 
 
 #Change this
-CONFIG_NAME=$(pwd -P)/lightning_infer_new.yaml
+CONFIG_NAME=$(pwd -P)/lightning_infer.yaml
 
 
 #Should not have to change these
@@ -20,7 +20,8 @@ PROJECT_DIR=/scratch/$SLURM_JOB_ACCOUNT
 CONTAINER_SCRIPT=$(pwd -P)/run_pytorch_infer.sh
 chmod 770 ${CONTAINER_SCRIPT}
 CONFIG_DIR=$(pwd -P)
-CONTAINER=$PROJECT_DIR/aifs/container/containers/bris-inference-pytorch-2.2.2-rocm-5.6.61-py-3.11.5-v2.sif
+# CONTAINER=$PROJECT_DIR/aifs/container/containers/bris-inference-pytorch-2.2.2-rocm-5.6.61-py-3.11.5-v2.sif
+CONTAINER=$PROJECT_DIR/anemoi/containers/bris-inference-pytorch-2.2.2-rocm-5.6.61-py-3.11.5-v2.sif
 VENV=$(pwd -P)/.venv
 export VIRTUAL_ENV=$VENV
 
@@ -38,6 +39,5 @@ srun --cpu-bind=$CPU_BIND \
                      -B /var/spool/slurmd \
                      -B /opt/cray \
                      -B /usr/lib64 \
-                     -B /usr/lib64/libjansson.so.4 \
         $CONTAINER $CONTAINER_SCRIPT $CONFIG_NAME
 
