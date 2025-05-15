@@ -1,10 +1,9 @@
-start_date: 2022-05-01T00:00:00
-end_date: 2022-05-02T18:00:00 #2023-06-01T18:00:00
-# end_date: 2022-09-15T18:00:00 #2023-06-01T18:00:00
+start_date: 2023-01-01T00:00:00
+end_date: 2023-02-01T00:00:00
 
 checkpoints:
   forecaster:
-    checkpoint_path: /pfs/lustrep2/scratch/project_465001893/anemoi/experiments/breeze_lightning/transfer_learning/checkpoint/16e89d3f-b8fb-47a5-b823-cf18fae35915/inference-last.ckpt
+    checkpoint_path: /pfs/lustrep2/scratch/project_465001893/anemoi/experiments/breeze_lightning/transfer_bce_loss/checkpoint/caa9717f-9fcb-454e-8ae3-bbce0b9242e7/inference-last.ckpt
     leadtimes: 12
 
 frequency: 6h
@@ -42,7 +41,9 @@ dataset_obs:
   dataset:
     join:
       - dataset: ${hardware.paths.data}/lightning/${hardware.files.dataset_obs}
+        select: ["thunder_event", "cos_latitude", "cos_longitude", "sin_latitude", "sin_longitude", "insolation"] # Select nwanted parameters
       - dataset: ${hardware.paths.data}/lightning/${hardware.files.dataset_obs_z}
+        select: ["z"] # Select only the topography
     adjust: [dates]
   mask_from_dataset:
     dataset: ${hardware.paths.data}/lightning/${hardware.files.dataset_obs_mask}
@@ -113,7 +114,17 @@ routing:
     outputs:
       - netcdf: 
           filename_pattern: ${hardware.paths.output}predictions/lightning_pred_%Y%m%dT%HZ.nc
-          variables: [thunder_count_25km]
+          variables: [thunder_event]
+      - verif:
+          filename: ${hardware.paths.output}verif/thunder_event/bl_thunder_event.nc
+          variable: thunder_event
+          thresholds: [0, 20, 70]
+          quantile_levels: [0.1, 0.9]
+          units: number
+          elev_gradient: 0
+          obs_sources:
+            - verif:
+                filename: /pfs/lustrep4/scratch/project_465001383/aifs/verification/lightning/verif_lightning_obs.nc
 #      - verif:
 #          filename: ${hardware.paths.output}verif/te/breeze_lightning_100_resolution_big.nc
 #          variable: te
