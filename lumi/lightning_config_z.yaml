@@ -62,7 +62,7 @@ dataloader:
     dataset:
       join:
         - dataset: ${hardware.paths.data}/lightning/${hardware.files.dataset_obs}
-          select: ["thunder_event", "cos_latitude", "cos_longitude", "sin_latitude", "sin_longitude", "insolation"] # Select nwanted parameters
+          select: ["thunder_count_25km", "cos_latitude", "cos_longitude", "sin_latitude", "sin_longitude", "insolation"] # Select nwanted parameters
         - dataset: ${hardware.paths.data}/lightning/${hardware.files.dataset_obs_z}
           select: ["z"] # Select only the topography
       adjust: [dates]
@@ -138,9 +138,9 @@ model:
         min_val: 0
         max_val: 1
     -
-      - _target_: anemoi.models.layers.bounding.LinearBounding #[0, infinity)
+      - _target_: anemoi.models.layers.bounding.ReluBounding #[0, infinity)
         variables:
-        - thunder_event
+        - thunder_count_25km
           #      - _target_: anemoi.models.layers.bounding.LinearBounding # (-5, 5)
           #        variables:
           #        - thunder_event
@@ -185,8 +185,8 @@ training:
     - _target_: anemoi.training.losses.mse.WeightedMSELoss
       scalars: ['variable']
       ignore_nans: False
-        # - _target_: anemoi.training.losses.mse.WeightedMSELoss
-    - _target_: anemoi.training.losses.binarycrossentropywithlogits.BinaryCrossEntropyWithLogitsLoss
+    - _target_: anemoi.training.losses.mse.WeightedMSELoss
+      # - _target_: anemoi.training.losses.binarycrossentropywithlogits.BinaryCrossEntropyWithLogitsLoss
       scalars: ['variable']
       ignore_nans: False
 
@@ -195,8 +195,8 @@ training:
     - _target_: anemoi.training.losses.mse.WeightedMSELoss
       scalars: []
       ignore_nans: False
-        #- _target_: anemoi.training.losses.mse.WeightedMSELoss
-    - _target_: anemoi.training.losses.binarycrossentropywithlogits.BinaryCrossEntropyWithLogitsLoss
+    - _target_: anemoi.training.losses.mse.WeightedMSELoss
+      # - _target_: anemoi.training.losses.binarycrossentropywithlogits.BinaryCrossEntropyWithLogitsLoss
       scalars: []
       ignore_nans: False
 
@@ -268,7 +268,7 @@ data:
     - "z"
   
     diagnostic:
-    - "thunder_event"
+    - "thunder_count_25km"
   
     remapped:
   
@@ -279,7 +279,7 @@ data:
       max:
       - "z"
       none:
-      - "thunder_event"
+      - "thunder_count_25km"
       - "cos_latitude"
       - "cos_longitude"
       - "sin_latitude"
