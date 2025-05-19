@@ -1,16 +1,15 @@
-start_date: 2022-06-01T00:00:00
-end_date: 2022-06-30T18:00:00
+start_date: 2023-05-01T00:00:00
+end_date: 2023-07-30T18:00:00
 
 checkpoints:
   forecaster:
-    checkpoint_path: /pfs/lustrep2/scratch/project_465001893/anemoi/experiments/breeze_lightning/transfer_bce_loss/checkpoint/6c1f64f0-db6a-47e0-b79e-2bb92ed5c9fe/inference-last.ckpt
+    checkpoint_path: /pfs/lustrep2/scratch/project_465001893/anemoi/experiments/breeze_lightning/transfer_bce_loss/checkpoint/caa9717f-9fcb-454e-8ae3-bbce0b9242e7/inference-last.ckpt
     leadtimes: 12
 
 frequency: 6h
 
 inference_num_chunks: 1
 
-# workdir: /pfs/lustrep4/scratch/project_465001383/erslando/lightning-anemoi-training/workdir/
 workdir: /pfs/lustrep2/scratch/project_465001893/erslando/lightning-anemoi-training/workdir/
 
 # New dataset structure.
@@ -41,7 +40,7 @@ dataset_obs:
   dataset:
     join:
       - dataset: ${hardware.paths.data}/lightning/${hardware.files.dataset_obs}
-        select: ["thunder_count_25km", "cos_latitude", "cos_longitude", "sin_latitude", "sin_longitude", "insolation"] # Select nwanted parameters
+        select: ["thunder_event", "cos_latitude", "cos_longitude", "sin_latitude", "sin_longitude", "insolation"] # Select nwanted parameters
       - dataset: ${hardware.paths.data}/lightning/${hardware.files.dataset_obs_z}
         select: ["z"] # Select only the topography
     adjust: [dates]
@@ -68,11 +67,11 @@ dataloader:
 hardware:
   paths:
     data: /pfs/lustrep2/scratch/project_465001893/anemoi/datasets/
-    output: /pfs/lustrep2/scratch/project_465001893/erslando/lightning-anemoi-training/inference_output_mse/
+    output: /pfs/lustrep2/scratch/project_465001893/erslando/lightning-anemoi-training/inference_output_bce/
     workdir: /pfs/lustrep2/scratch/project_465001893/erslando/lightning-anemoi-training/workdir/
   files:
     dataset_lam: aifs-meps-2.5km-2020-2023-6h-v7.zarr
-    dataset_global_atm: aifs-ea-an-oper-0001-mars-n320-1979-2022-6h-v6.zarr
+    dataset_global_atm: aifs-od-an-oper-0001-mars-n320-2019-2023-6h-v6.zarr
     dataset_global_land: aifs-ea-an-oper-0001-mars-n320-1979-2023-6h-v1-land.zarr
     dataset_obs: breeze_force_o96_6h.zarr
     dataset_obs_z: lightning_z.zarr
@@ -114,17 +113,17 @@ routing:
     outputs:
       - netcdf: 
           filename_pattern: ${hardware.paths.output}predictions/lightning_pred_%Y%m%dT%HZ.nc
-          variables: [thunder_count_25km]
-            #      - verif:
-            #          filename: ${hardware.paths.output}verif/thunder_count_25km/bl_thunder_event.nc
-            #          variable: thunder_event
-            #          thresholds: [0, 20, 70]
-            #          quantile_levels: [0.1, 0.9]
-            #          units: number
-            #          elev_gradient: 0
-            #          obs_sources:
-            #            - verif:
-            #                filename: /pfs/lustrep2/scratch/project_465001893/anemoi/verification/verif_lightning/verif_lightning_obs.nc
+          variables: [thunder_event]
+      - verif:
+          filename: ${hardware.paths.output}verif/thunder_event/bl_thunder_event_s2023.nc
+          variable: thunder_event
+          thresholds: [0, 20, 70]
+          quantile_levels: [0.1, 0.9]
+          units: number
+          elev_gradient: 0
+          obs_sources:
+            - verif:
+                filename: /pfs/lustrep2/scratch/project_465001893/anemoi/verification/verif_lightning/verif_lightning_obs.nc
 #      - verif:
 #          filename: ${hardware.paths.output}verif/te/breeze_lightning_100_resolution_big.nc
 #          variable: te
