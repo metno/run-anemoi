@@ -12,7 +12,7 @@
 
 
 #Change this
-CONFIG_NAME=lightning_config_z.yaml # This file should be located in run-anemoi/lumi
+CONFIG_NAME=lightning_config_rollout.yaml # This file should be located in run-anemoi/lumi
 
 # NOTE: Actually, somehow the program rather locates the file in anemoi-training/src/anemoi/config/
 # No clue why it does this.
