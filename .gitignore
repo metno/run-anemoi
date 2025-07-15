@@ -1,1 +1,7 @@
 /lumi/.venv
+
+anemoi-core/
+anemoi-datasets/
+anemoi-models-downscaling/
+anemoi-training-downscaling/
+anemoi-utils/
