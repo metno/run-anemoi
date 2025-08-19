@@ -65,13 +65,13 @@ if [ ! -d "$ROOT_DIR/anemoi-models-downscaling" ]; then
 fi
 add_setup_py_if_missing "$ROOT_DIR/anemoi-models-downscaling"
 pip install --no-deps -e "$ROOT_DIR/anemoi-models-downscaling"
-pip install "typeguard>=4" "pynvml>=11.5" "anemoi-transform>=0.1.10" "cfunits" "pydantic>=2.9" "netcdf4>1.7" "anemoi-utils[provenance]>=0.4.26"
+#pip install "typeguard>=4" "pynvml>=11.5" "anemoi-transform>=0.1.10" "cfunits" "pydantic>=2.9" "netcdf4>1.7" "anemoi-utils[provenance]>=0.4.26"
 
 # Install additional dependencies
-pip install icecream
+#pip install icecream
 
 # Force reinstall the correct version of numpy
-pip install --force-reinstall "numpy>=1.26,<2"
+#pip install --force-reinstall "numpy>=1.26,<2"
 
 # Set PYTHONPATH dynamically
 export PYTHONPATH=$ROOT_DIR/anemoi-core/graphs/src:$ROOT_DIR/anemoi-datasets/src:$ROOT_DIR/anemoi-utils/src:$PYTHONPATH
