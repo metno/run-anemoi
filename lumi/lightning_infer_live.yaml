@@ -1,0 +1,87 @@
+start_date: 2025-07-16T00:00:00
+end_date: 2025-07-16T00:00:00
+
+checkpoints:
+  forecaster:
+    checkpoint_path: /pfs/lustrep2/scratch/project_465001893/anemoi/experiments/breeze_lightning/transfer_bce_loss/checkpoint/caa9717f-9fcb-454e-8ae3-bbce0b9242e7/inference-last.ckpt
+    leadtimes: 12
+
+frequency: 6h
+
+inference_num_chunks: 1
+
+workdir: /pfs/lustrep2/scratch/project_465001893/erslando/lightning-anemoi-training/workdir/
+
+# New dataset structure.
+dataset_data:
+  cutout:
+  - dataset: ${hardware.paths.data}/lightning/${hardware.files.dataset_lam}
+    trim_edge: 50
+    reorder: sort
+  - dataset: ${hardware.paths.data}/lightning/${hardware.files.dataset_global} 
+  min_distance_km: 0
+  adjust: all
+
+dataset_obs:
+  dataset: ${hardware.paths.data}/lightning/${hardware.files.dataset_lam}
+  select: ["cos_latitude", "cos_longitude", "sin_latitude", "sin_longitude", "insolation", "z"] # Select nwanted parameters
+  mask_from_dataset:
+    dataset: ${hardware.paths.data}/lightning/${hardware.files.dataset_obs_mask}
+    field: thunder_mask
+
+dataset:
+  zip:
+    - dataset: ${dataset_data}
+    - dataset: ${dataset_obs}
+  adjust: ["start", "end"]
+
+# If the user wants to release GPU cache and memory
+# This option releases unused cached/memory used by torch
+release_cache: False
+
+dataloader:
+
+  datamodule:
+    _target_: bris.data.dataset.ZipDataset
+    _convert_: all
+
+hardware:
+  paths:
+    data: /pfs/lustrep2/scratch/project_465001893/anemoi/datasets/
+    output: /pfs/lustrep2/scratch/project_465001893/erslando/lightning-anemoi-training/inference_live/
+    workdir: /pfs/lustrep2/scratch/project_465001893/erslando/lightning-anemoi-training/workdir/
+  files:
+    dataset_lam: meps_20250716T00Z.zarr
+    dataset_global: ifs_20250716T00Z.zarr
+    dataset_obs_mask: lightning_mask_2025.zarr
+
+  num_gpus_per_node: 8
+  num_gpus_per_model: 8
+  num_nodes: 1
+
+
+
+
+model:
+  _target_: bris.model.multiencdecpredictor.MultiEncDecPredictor
+  _convert_: all
+
+
+routing:
+  - decoder_index: 0
+    domain_index: 0
+    outputs:
+      - netcdf:
+          filename_pattern: ${hardware.paths.output}/predictions/meps_pred_%Y%m%dT%HZ.nc
+          variables: [2t, msl, tp]
+          domain_name: meps
+
+  - decoder_index: 1
+    domain_index: 0
+    outputs:
+      - netcdf: 
+          filename_pattern: ${hardware.paths.output}predictions/lightning_pred_%Y%m%dT%HZ.nc
+          variables: [thunder_event]
+          mask_file: ${hardware.paths.data}/lightning/thunder_climatology_mask.nc
+          mask_field: thunder_mask
+          domain_name: meps

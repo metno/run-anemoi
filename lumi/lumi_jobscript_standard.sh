@@ -7,7 +7,7 @@
 #SBATCH --partition=standard-g
 #SBATCH --gpus-per-node=8
 #SBATCH --time=12:00:00
-#SBATCH --job-name=breeze_clouds
+#SBATCH --job-name=breeze_rollout_3
 #SBATCH --exclusive
 
 

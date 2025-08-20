@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --output=/users/%u/%x_%j.out
 #SBATCH --error=/users/%u/%x_%j.err
-#SBATCH --nodes=4
+#SBATCH --nodes=1
 #SBATCH --ntasks-per-node=8
 #SBATCH --account=project_465001893
 #SBATCH --partition=standard-g
@@ -12,7 +12,7 @@
 
 
 #Change this
-CONFIG_NAME=$(pwd -P)/lightning_infer.yaml
+CONFIG_NAME=$(pwd -P)/lightning_infer_live.yaml
 
 
 #Should not have to change these

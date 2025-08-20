@@ -154,14 +154,14 @@ training:
     min: 8e-06
     warmup_t: 10
   rollout: # Rollout training 
-    start: 2
-    end: 2   
+    start: 3
+    end: 3 
   
   train_module: anemoi.training.train.netatmo_forecaster
   train_function: NetatmoGraphForecaster
   dataset_loss_scaling: [1.0, 0.05] 
   run_id: null #cb63da45f3994dd0b764b31a00d98d64
-  fork_run_id: caa9717f-9fcb-454e-8ae3-bbce0b9242e7
+  fork_run_id: 739df5fd-21ef-448f-8d6b-5efb101a50f3 
   load_weights_only: True
   transfer_learning: True
   transfer_learning_with_layer_dict: False
