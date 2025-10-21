@@ -68,7 +68,7 @@ pip install --no-deps -e "$ROOT_DIR/anemoi-models-downscaling"
 #pip install "typeguard>=4" "pynvml>=11.5" "anemoi-transform>=0.1.10" "cfunits" "pydantic>=2.9" "netcdf4>1.7" "anemoi-utils[provenance]>=0.4.26"
 
 # Install additional dependencies
-#pip install icecream
+pip install icecream
 
 # Force reinstall the correct version of numpy
 #pip install --force-reinstall "numpy>=1.26,<2"
